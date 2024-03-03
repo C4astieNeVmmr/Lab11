@@ -19,7 +19,7 @@ int main(){
     char wordBuffer[M],wordsArr[N][M];
     int wordsNumber=0,longestWordsIndexes[N],wordsRootedToLongestIndexes[N][N],mostImportantWordsIndexes[N],
     maxRootedWords=0,rootedCounter,numberOfMostImportantWords=0;
-    ifstream wordsInput("test1");
+    ifstream wordsInput("test5");
     while(wordsInput.peek()!=EOF)
     {
         wordsInput >> wordsArr[wordsNumber++];
@@ -31,34 +31,32 @@ int main(){
     for(int i=0;i<wordsNumber;i++){//самое важное
         rootedCounter = 0;
         for(int j=0;j<wordsNumber;j++){
-            cout << endl << wordsArr[i] << "\t" << wordsArr[j] << "\t";
             if(i==j){
                 continue;
             }
-            cout << root(wordsArr[i],wordsArr[j]);
             if(root(wordsArr[i],wordsArr[j])){
                 rootedCounter++;
             }
-            if(rootedCounter==maxRootedWords){
-                mostImportantWordsIndexes[numberOfMostImportantWords++] = i;
-            }
-            if(rootedCounter>maxRootedWords){
-                maxRootedWords = rootedCounter;
-                numberOfMostImportantWords = 0;
-                mostImportantWordsIndexes[numberOfMostImportantWords++] = i;
-            }
         }
-        cout << endl << endl;
-        for(int i=0;i<10;i++){
-            cout << wordsArr[mostImportantWordsIndexes[i]] << "\t";
+        if(rootedCounter==maxRootedWords){
+            mostImportantWordsIndexes[numberOfMostImportantWords++] = i;
         }
-        cout << endl;
+        if(rootedCounter>maxRootedWords){
+            maxRootedWords = rootedCounter;
+            numberOfMostImportantWords = 0;
+            mostImportantWordsIndexes[numberOfMostImportantWords++] = i;
+        }
     }
 
-    /*for(int i=0;i<numberOfMostImportantWords;i++){
-        cout << wordsArr[mostImportantWordsIndexes[i]] << "\t";
+
+    if(maxRootedWords!=0){
+        for(int i=0;i<numberOfMostImportantWords;i++){
+            cout << wordsArr[mostImportantWordsIndexes[i]] << "\t";
+        }
+        cout << maxRootedWords << endl;
+    } else {
+        cout << "NO" << endl;
     }
-    cout << maxRootedWords << endl;*/
 
     /*for(int i=0;i<wordsNumber;i++){
         cout << "0" << wordsArr[i] << "0\n";
