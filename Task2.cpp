@@ -17,8 +17,15 @@ bool root(char* rootToA,char* A){
 
 int main(){
     char wordBuffer[M],wordsArr[N][M];
-    int wordsNumber=0,longestWordsIndexes[N],wordsRootedToLongestIndexes[N][N],mostImportantWordsIndexes[N],
-    maxRootedWords=0,rootedCounter,numberOfMostImportantWords=0;
+    int wordsNumber=0,
+    //длиннейшие слова     слова для которых длиннейшие=корневые          слова для которых текущее длиннейшее=корневое
+    longestWordsIndexes[N],wordsRootedToLongestIndexes[N][N],   maxLen=0,bufferRootedToCurrentLongestIndexes[N],
+    //кол-во слов для которых длиннейшее=корневое для каждого длиннейшего  кол-во слов для которых текущее длиннейшее=корневое
+    numberOfRootedToLongestIndexes[N],                                     numberOfRootedToCurrentLongest,
+    //кол-во длиннейших  важнейшие слова по индексам                   //счётчик слов, для которых текущее-корневое
+    numberOfLongest=0,   mostImportantWordsIndexes[N],maxRootedWords=0,rootedCounter,
+    //кол-во важнейших слов
+    numberOfMostImportantWords=0;
     ifstream wordsInput("test5");
     while(wordsInput.peek()!=EOF)
     {
@@ -28,9 +35,53 @@ int main(){
     wordsNumber--;
 
 
+    for(int i=0;i<wordsNumber;i++){//самое длинное
+        if(maxLen>strlen(wordsArr[i])){
+            continue;
+        }
+        numberOfRootedToCurrentLongest = 0;
+        for(int j=0;j<wordsNumber;j++){//находи все слова, для которых wordsArr[i] - корневое
+            if(i==j){
+                continue;
+            }
+            if(root(wordsArr[i],wordsArr[j])){
+                bufferRootedToCurrentLongestIndexes[numberOfRootedToCurrentLongest++]=j;
+            }
+        }
+        if(numberOfRootedToCurrentLongest==0){ //если wordsArr[i] не является корневым ни для каких слов
+            continue;
+        }
+        if(maxLen==strlen(wordsArr[i])){ //если wordsArr[i] такой же длинный как предыдущие длиннейшие, добавляем его в конец
+            longestWordsIndexes[numberOfLongest] = i;
+            for(int j=0;j<numberOfRootedToCurrentLongest;j++){
+                wordsRootedToLongestIndexes[numberOfLongest][j] = bufferRootedToCurrentLongestIndexes[j];
+            }
+            numberOfRootedToLongestIndexes[numberOfLongest] = numberOfRootedToCurrentLongest;
+            numberOfLongest++;
+        }
+        if(maxLen<strlen(wordsArr[i])){ //если wordsArr[i] длинее предыдущих длиннейших, сбрасываем количество длиннейших 
+            maxLen = strlen(wordsArr[i]); //и записываем его поверх старых
+            longestWordsIndexes[0] = i;
+            for(int j=0;j<numberOfRootedToCurrentLongest;j++){
+                wordsRootedToLongestIndexes[0][j] = bufferRootedToCurrentLongestIndexes[j];
+            }
+            numberOfRootedToLongestIndexes[0] = numberOfRootedToCurrentLongest;
+            numberOfLongest=1;
+        }
+    }
+
+    for(int i=0;i<numberOfLongest;i++){//выводим длиннейшие
+        cout << "longest word: " << wordsArr[longestWordsIndexes[i]] << "\twords for which it is a root:";
+        for(int j=0;j<numberOfRootedToLongestIndexes[i];j++){
+            cout << "\t" << wordsArr[wordsRootedToLongestIndexes[i][j]];
+        }
+        cout << endl;
+    }
+
+
     for(int i=0;i<wordsNumber;i++){//самое важное
         rootedCounter = 0;
-        for(int j=0;j<wordsNumber;j++){
+        for(int j=0;j<wordsNumber;j++){//считаем кол-во слов для которых wordsArr[i]-корневое
             if(i==j){
                 continue;
             }
@@ -38,29 +89,25 @@ int main(){
                 rootedCounter++;
             }
         }
-        if(rootedCounter==maxRootedWords){
-            mostImportantWordsIndexes[numberOfMostImportantWords++] = i;
+        if(rootedCounter==maxRootedWords){//если новое слово такое же важное как предыдущие важнейшие,
+            mostImportantWordsIndexes[numberOfMostImportantWords++] = i;//то дописываем его в конец
         }
-        if(rootedCounter>maxRootedWords){
-            maxRootedWords = rootedCounter;
+        if(rootedCounter>maxRootedWords){//если новое слово ваднее предыдущих важнейших, то обнуляем их
+            maxRootedWords = rootedCounter;//кол-во и записываем новое поверх старых
             numberOfMostImportantWords = 0;
             mostImportantWordsIndexes[numberOfMostImportantWords++] = i;
         }
     }
 
 
-    if(maxRootedWords!=0){
+    if(maxRootedWords!=0){//выводим важнейшие
+        cout << "the most important words: ";
         for(int i=0;i<numberOfMostImportantWords;i++){
             cout << wordsArr[mostImportantWordsIndexes[i]] << "\t";
         }
-        cout << maxRootedWords << endl;
+        cout << "number of words rooted to the most important: " << maxRootedWords << endl;
     } else {
         cout << "NO" << endl;
     }
-
-    /*for(int i=0;i<wordsNumber;i++){
-        cout << "0" << wordsArr[i] << "0\n";
-    }*/
-
     return 0;
 }
